@@ -1,0 +1,14 @@
+{
+  "name": "potentiometer-viewer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Bruno Lemos",
+  "license": "MIT",
+  "dependencies": {
+    "socket.io": "^2.0.4",
+    "serialport": "^9.0.1"
+  }
+}

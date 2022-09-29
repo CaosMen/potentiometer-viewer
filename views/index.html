@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Angle Gauge</title>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.3/dist/echarts.min.js"></script>
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+
+      #gauges {
+        display: flex;
+
+        width: 100%;
+        height: 100%;
+      }
+
+      #gauges > div {
+        width: 100%;
+      }
+    </style>  
+  </head>
+  <body>
+    <div id="gauges">
+      <div id="gauge-polinomial"></div>
+      <div id="gauge-nonPolinomial"></div>
+    </div>
+    <script>
+      let gaugePolinomialDom = document.getElementById('gauge-polinomial');
+      let gaugeNonPolinomialDom = document.getElementById('gauge-nonPolinomial');
+
+      let gaugeChartPolinomial = echarts.init(gaugePolinomialDom, null, {renderer: 'canvas'});
+      let gaugeChartNonPolinomial = echarts.init(gaugeNonPolinomialDom, null, {renderer: 'canvas'});
+
+      let option = {
+        series: [
+          {
+            type: 'gauge',
+            animation: false,
+            min: 0,
+            max: 360,
+            startAngle: 180,
+            endAngle: -180,
+            splitNumber: 36,
+            title: {
+              show: false
+            },
+            progress: {
+              show: true,
+              width: 18
+            },
+            axisLine: {
+              lineStyle: {
+                width: 18
+              }
+            },
+            axisTick: {
+              splitNumber: 2,
+              lineStyle: {
+                width: 2,
+                color: '#999'
+              }
+            },
+            splitLine: {
+              length: 15,
+              lineStyle: {
+                width: 2,
+                color: '#999'
+              }
+            },
+            axisLabel: {
+              distance: 25,
+              color: '#999',
+              fontSize: 20,
+              formatter: (value) => {
+                if (value === 360) {
+                  return '';
+                }
+                return value + '';
+              }
+            },
+            anchor: {
+              show: true,
+              showAbove: true,
+              size: 25,
+              itemStyle: {
+                borderWidth: 10
+              }
+            },
+            detail: {
+              fontSize: 50,
+              offsetCenter: [0, '50%'],
+              formatter: (value) => {
+                return value + '°';
+              }
+            },
+            data: [{ value: 0 }]
+          }
+        ],
+      };
+
+      window.addEventListener('resize', () => {
+        gaugeChartPolinomial.resize();
+        gaugeChartNonPolinomial.resize();
+      });
+
+      window.addEventListener('load', () => {
+        const socket = io();
+        
+        gaugeChartPolinomial.setOption(option);
+        gaugeChartNonPolinomial.setOption(option);
+
+        socket.on('data', (data) => {
+          gaugeChartPolinomial.setOption({
+            series: [
+              {
+                data: [{ value: data[1] }]
+              }
+            ]
+          });
+
+          gaugeChartNonPolinomial.setOption({
+            series: [
+              {
+                data: [{ value: data[2] }]
+              }
+            ]
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
